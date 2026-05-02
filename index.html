@@ -1,0 +1,857 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zero Food Waste</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="/_sdk/data_sdk.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'DM Sans', sans-serif; }
+    .card-hover { transition: all 0.3s ease; }
+    .card-hover:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(0,0,0,0.1); }
+    .status-pending { background: #FEF3C7; color: #92400E; }
+    .status-accepted { background: #D1FAE5; color: #065F46; }
+    .status-delivered { background: #DBEAFE; color: #1E40AF; }
+    .fade-in { animation: fadeIn 0.3s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .pulse { animation: pulse 2s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+    .notification-enter { animation: slideInRight 0.3s ease-out; }
+    @keyframes slideInRight { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    .notification-exit { animation: slideOutRight 0.3s ease-in; }
+    @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(400px); opacity: 0; } }
+    .notification-badge { animation: pulse 2s infinite; }
+  </style>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full bg-[#F0F7F4] overflow-auto">
+  <div id="app" class="w-full min-h-full"><!-- Auth Check & Login/Register Views -->
+   <div id="auth-view" class="w-full h-full">
+    <!-- Login Page -->
+    <div id="login-page" class="min-h-full bg-[#F0F7F4] flex items-center justify-center p-4">
+     <div class="w-full max-w-md">
+      <div class="bg-white rounded-2xl shadow-lg p-8">
+       <div class="flex justify-center mb-6">
+        <div class="w-16 h-16 bg-[#1B4D3E] rounded-full flex items-center justify-center">
+         <svg class="w-8 h-8 text-[#4ADE80]" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+         </svg>
+        </div>
+       </div>
+       <h1 class="text-2xl font-bold text-center text-[#1B4D3E] mb-2">Zero Food Waste</h1>
+       <p class="text-center text-[#6B7280] text-sm mb-6">Connect surplus food with those who need it</p>
+       <form id="login-form" class="space-y-4">
+        <div>
+         <label class="block text-sm font-medium text-[#374151] mb-1">Email</label> <input type="email" id="login-email" required placeholder="your@email.com" class="w-full px-4 py-3 border border-[#D1D5DB] rounded-lg focus:ring-2 focus:ring-[#4ADE80] focus:border-transparent outline-none transition">
+        </div>
+        <div>
+         <label class="block text-sm font-medium text-[#374151] mb-1">Password</label> <input type="password" id="login-password" required placeholder="Enter your password" class="w-full px-4 py-3 border border-[#D1D5DB] rounded-lg focus:ring-2 focus:ring-[#4ADE80] focus:border-transparent outline-none transition">
+        </div><button type="submit" class="w-full bg-[#1B4D3E] text-white py-3 rounded-lg font-semibold hover:bg-[#143D31] transition">Sign In</button>
+        <p id="login-error" class="text-sm text-red-600 text-center hidden"></p>
+       </form>
+       <div class="mt-6 text-center">
+        <p class="text-[#6B7280] text-sm">Don't have an account? <button onclick="showRegister()" class="text-[#4ADE80] font-semibold hover:underline">Sign up here</button></p>
+       </div>
+      </div>
+     </div>
+    </div><!-- Register Page -->
+    <div id="register-page" class="min-h-full bg-[#F0F7F4] flex items-center justify-center p-4 hidden">
+     <div class="w-full max-w-md">
+      <div class="bg-white rounded-2xl shadow-lg p-8">
+       <div class="flex justify-center mb-6">
+        <div class="w-16 h-16 bg-[#1B4D3E] rounded-full flex items-center justify-center">
+         <svg class="w-8 h-8 text-[#4ADE80]" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+         </svg>
+        </div>
+       </div>
+       <h1 class="text-2xl font-bold text-center text-[#1B4D3E] mb-2">Create Account</h1>
+       <p class="text-center text-[#6B7280] text-sm mb-6">Join the movement to eliminate food waste</p>
+       <form id="register-form" class="space-y-4">
+        <div>
+         <label class="block text-sm font-medium text-[#374151] mb-1">Account Type</label> <select id="register-type" required class="w-full px-4 py-3 border border-[#D1D5DB] rounded-lg focus:ring-2 focus:ring-[#4ADE80] focus:border-transparent outline-none transition bg-white"> <option value="">Select account type</option> <option value="donor">🍎 Food Donor</option> <option value="ngo">🏢 NGO Organization</option> </select>
+        </div>
+        <div id="org-name-field" class="hidden">
+         <label class="block text-sm font-medium text-[#374151] mb-1">Organization Name</label> <input type="text" id="register-org" placeholder="Your organization name" class="w-full px-4 py-3 border border-[#D1D5DB] rounded-lg focus:ring-2 focus:ring-[#4ADE80] focus:border-transparent outline-none transition">
+        </div>
+        <div>
+         <label class="block text-sm font-medium text-[#374151] mb-1">Email</label> <input type="email" id="register-email" required placeholder="your@email.com" class="w-full px-4 py-3 border border-[#D1D5DB] rounded-lg focus:ring-2 focus:ring-[#4ADE80] focus:border-transparent outline-none transition">
+        </div>
+        <div>
+         <label class="block text-sm font-medium text-[#374151] mb-1">Phone</label> <input type="tel" id="register-phone" required placeholder="Your phone number" class="w-full px-4 py-3 border border-[#D1D5DB] rounded-lg focus:ring-2 focus:ring-[#4ADE80] focus:border-transparent outline-none transition">
+        </div>
+        <div>
+         <label class="block text-sm font-medium text-[#374151] mb-1">Password</label> <input type="password" id="register-password" required placeholder="Create a password" class="w-full px-4 py-3 border border-[#D1D5DB] rounded-lg focus:ring-2 focus:ring-[#4ADE80] focus:border-transparent outline-none transition">
+        </div>
+        <div>
+         <label class="block text-sm font-medium text-[#374151] mb-1">Confirm Password</label> <input type="password" id="register-confirm" required placeholder="Confirm your password" class="w-full px-4 py-3 border border-[#D1D5DB] rounded-lg focus:ring-2 focus:ring-[#4ADE80] focus:border-transparent outline-none transition">
+        </div><button type="submit" class="w-full bg-[#1B4D3E] text-white py-3 rounded-lg font-semibold hover:bg-[#143D31] transition">Create Account</button>
+        <p id="register-error" class="text-sm text-red-600 text-center hidden"></p>
+       </form>
+       <div class="mt-6 text-center">
+        <p class="text-[#6B7280] text-sm">Already have an account? <button onclick="showLogin()" class="text-[#4ADE80] font-semibold hover:underline">Sign in here</button></p>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div><!-- Main App (shown after login) -->
+   <div id="main-app" class="w-full min-h-full hidden"><!-- Header -->
+    <header class="bg-[#1B4D3E] text-white px-6 py-4 shadow-lg">
+     <div class="max-w-6xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+       <div class="w-10 h-10 bg-[#4ADE80] rounded-full flex items-center justify-center">
+        <svg class="w-6 h-6 text-[#1B4D3E]" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+        </svg>
+       </div>
+       <div>
+        <h1 id="header-title" class="text-xl font-bold">Zero Food Waste</h1>
+        <p id="header-tagline" class="text-[#4ADE80] text-sm">Connect surplus food with those who need it</p>
+       </div>
+      </div>
+      <nav class="flex gap-2 items-center">
+       <span id="user-info" class="text-[#4ADE80] text-sm mr-4"></span> <button id="nav-donor" onclick="showView('donor')" class="px-4 py-2 rounded-lg bg-[#4ADE80] text-[#1B4D3E] font-medium transition hover:bg-[#22C55E]">Donate Food</button> <button id="nav-ngo" onclick="showView('ngo')" class="px-4 py-2 rounded-lg bg-white/10 text-white font-medium transition hover:bg-white/20">NGO Dashboard</button>
+       <div class="relative"><button id="notifications-btn" onclick="toggleNotifications()" class="relative px-4 py-2 rounded-lg bg-white/10 text-white font-medium transition hover:bg-white/20">
+         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+         </svg><span id="notification-count" class="absolute top-1 right-1 w-5 h-5 bg-red-600 text-white text-xs rounded-full flex items-center justify-center font-bold hidden">0</span> </button>
+        <div id="notifications-panel" class="absolute right-0 top-12 w-80 bg-white rounded-xl shadow-xl hidden z-50 max-h-96 overflow-y-auto">
+         <div class="p-4 border-b border-[#E5E7EB]">
+          <h3 class="font-semibold text-[#1B4D3E]">Notifications</h3>
+         </div>
+         <div id="notifications-list" class="divide-y divide-[#E5E7EB]">
+          <p class="p-4 text-center text-[#9CA3AF] text-sm">No notifications yet</p>
+         </div>
+        </div>
+       </div><button id="logout-btn" onclick="logout()" class="px-4 py-2 rounded-lg bg-red-600 text-white font-medium transition hover:bg-red-700">Logout</button>
+      </nav>
+     </div>
+    </header><!-- Donor View -->
+    <main id="donor-view" class="max-w-6xl mx-auto p-6"><!-- Stats Bar -->
+     <div class="grid grid-cols-3 gap-4 mb-8">
+      <div class="bg-white rounded-xl p-4 shadow-sm border border-[#E5E7EB]">
+       <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-[#FEF3C7] rounded-lg flex items-center justify-center"><span class="text-2xl">📦</span>
+        </div>
+        <div>
+         <p class="text-[#6B7280] text-sm">Pending</p>
+         <p id="stat-pending" class="text-2xl font-bold text-[#1B4D3E]">0</p>
+        </div>
+       </div>
+      </div>
+      <div class="bg-white rounded-xl p-4 shadow-sm border border-[#E5E7EB]">
+       <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-[#D1FAE5] rounded-lg flex items-center justify-center"><span class="text-2xl">✅</span>
+        </div>
+        <div>
+         <p class="text-[#6B7280] text-sm">Accepted</p>
+         <p id="stat-accepted" class="text-2xl font-bold text-[#1B4D3E]">0</p>
+        </div>
+       </div>
+      </div>
+      <div class="bg-white rounded-xl p-4 shadow-sm border border-[#E5E7EB]">
+       <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-[#DBEAFE] rounded-lg flex items-center justify-center"><span class="text-2xl">🚚</span>
+        </div>
+        <div>
+         <p class="text-[#6B7280] text-sm">Delivered</p>
+         <p id="stat-delivered" class="text-2xl font-bold text-[#1B4D3E]">0</p>
+        </div>
+       </div>
+      </div>
+     </div><!-- Add Food Form -->
+     <div class="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-6 mb-8">
+      <h2 class="text-xl font-bold text-[#1B4D3E] mb-4 flex items-center gap-2"><span class="text-2xl">🍎</span> List Surplus Food</h2>
+      <form id="food-form" class="grid grid-cols-2 gap-4">
+       <div><label class="block text-sm font-medium text-[#374151] mb-1">Food Item Name</label> <input type="text" id="food-name" required placeholder="e.g., Fresh Vegetables" class="w-full px-4 py-3 border border-[#D1D5DB] rounded-lg focus:ring-2 focus:ring-[#4ADE80] focus:border-transparent outline-none transition">
+       </div>
+       <div><label class="block text-sm font-medium text-[#374151] mb-1">Quantity</label> <input type="text" id="food-quantity" required placeholder="e.g., 50 kg" class="w-full px-4 py-3 border border-[#D1D5DB] rounded-lg focus:ring-2 focus:ring-[#4ADE80] focus:border-transparent outline-none transition">
+       </div>
+       <div><label class="block text-sm font-medium text-[#374151] mb-1">Category</label> <select id="food-category" required class="w-full px-4 py-3 border border-[#D1D5DB] rounded-lg focus:ring-2 focus:ring-[#4ADE80] focus:border-transparent outline-none transition bg-white"> <option value="">Select category</option> <option value="Fruits &amp; Vegetables">🥕 Fruits &amp; Vegetables</option> <option value="Dairy Products">🥛 Dairy Products</option> <option value="Bakery Items">🍞 Bakery Items</option> <option value="Cooked Meals">🍲 Cooked Meals</option> <option value="Packaged Foods">📦 Packaged Foods</option> <option value="Beverages">🥤 Beverages</option> </select>
+       </div>
+       <div><label class="block text-sm font-medium text-[#374151] mb-1">Best Before Date</label> <input type="date" id="food-expiry" required class="w-full px-4 py-3 border border-[#D1D5DB] rounded-lg focus:ring-2 focus:ring-[#4ADE80] focus:border-transparent outline-none transition">
+       </div>
+       <div><label class="block text-sm font-medium text-[#374151] mb-1">Pickup Location</label> <input type="text" id="food-location" required placeholder="e.g., 123 Main St, City" class="w-full px-4 py-3 border border-[#D1D5DB] rounded-lg focus:ring-2 focus:ring-[#4ADE80] focus:border-transparent outline-none transition">
+       </div>
+       <div><label class="block text-sm font-medium text-[#374151] mb-1">Your Name / Organization</label> <input type="text" id="donor-name" required placeholder="e.g., ABC Restaurant" class="w-full px-4 py-3 border border-[#D1D5DB] rounded-lg focus:ring-2 focus:ring-[#4ADE80] focus:border-transparent outline-none transition">
+       </div>
+       <div class="col-span-2"><button type="submit" id="submit-btn" class="w-full bg-[#1B4D3E] text-white py-3 rounded-lg font-semibold hover:bg-[#143D31] transition flex items-center justify-center gap-2">
+         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+         </svg> Add to Available List </button>
+       </div>
+      </form>
+      <p id="form-message" class="mt-3 text-center text-sm hidden"></p>
+      <p id="limit-warning" class="mt-3 text-center text-sm text-red-600 hidden">Maximum limit of 999 items reached. Please wait for some items to be delivered.</p>
+     </div><!-- My Donations List -->
+     <div class="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-6">
+      <h2 class="text-xl font-bold text-[#1B4D3E] mb-4 flex items-center gap-2"><span class="text-2xl">📋</span> My Donations</h2>
+      <div id="donations-list" class="space-y-3">
+       <p class="text-[#6B7280] text-center py-8">No donations yet. Add surplus food above to get started!</p>
+      </div>
+     </div>
+    </main><!-- NGO View -->
+    <main id="ngo-view" class="max-w-6xl mx-auto p-6 hidden"><!-- NGO Header -->
+     <div class="bg-gradient-to-r from-[#1B4D3E] to-[#2D6A4F] rounded-2xl p-6 mb-8 text-white">
+      <div class="flex items-center gap-4">
+       <div class="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center"><span class="text-3xl">🏢</span>
+       </div>
+       <div>
+        <h2 class="text-2xl font-bold">NGO Dashboard</h2>
+        <p class="text-[#4ADE80]">Food Hope Foundation</p>
+       </div>
+      </div>
+     </div><!-- Available Food -->
+     <div class="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-6 mb-8">
+      <h2 class="text-xl font-bold text-[#1B4D3E] mb-4 flex items-center gap-2"><span class="text-2xl">🆕</span> Available Food Donations</h2>
+      <div id="available-food" class="space-y-3">
+       <p class="text-[#6B7280] text-center py-8">No pending donations available at the moment.</p>
+      </div>
+     </div><!-- Accepted Food -->
+     <div class="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-6">
+      <h2 class="text-xl font-bold text-[#1B4D3E] mb-4 flex items-center gap-2"><span class="text-2xl">📦</span> Accepted Donations</h2>
+      <div id="accepted-food" class="space-y-3">
+       <p class="text-[#6B7280] text-center py-8">No accepted donations yet.</p>
+      </div>
+     </div>
+    </main>
+   </div>
+  </div>
+  <script>
+    // Auth and Config state
+    const defaultConfig = {
+      app_title: 'Zero Food Waste',
+      tagline: 'Connect surplus food with those who need it',
+      donate_button_text: 'Donate Food',
+      ngo_button_text: 'NGO Dashboard',
+      background_color: '#F0F7F4',
+      header_color: '#1B4D3E',
+      text_color: '#1B4D3E',
+      accent_color: '#4ADE80',
+      card_color: '#FFFFFF',
+      font_family: 'DM Sans',
+      font_size: 16
+    };
+
+    let currentView = 'donor';
+    let allDonations = [];
+    let allUsers = [];
+    let recordCount = 0;
+    let currentUser = null;
+    let allNotifications = [];
+
+    // Check if user is logged in
+    function checkAuth() {
+      const savedUser = localStorage.getItem('currentUser');
+      if (savedUser) {
+        currentUser = JSON.parse(savedUser);
+        showMainApp();
+      } else {
+        showAuthView();
+      }
+    }
+
+    function showAuthView() {
+      document.getElementById('auth-view').classList.remove('hidden');
+      document.getElementById('main-app').classList.add('hidden');
+    }
+
+    function showMainApp() {
+      document.getElementById('auth-view').classList.add('hidden');
+      document.getElementById('main-app').classList.remove('hidden');
+      updateUserInfo();
+    }
+
+    function updateUserInfo() {
+      const userType = currentUser.user_type === 'donor' ? '🍎 Donor' : '🏢 NGO';
+      const displayName = currentUser.user_type === 'ngo' ? currentUser.organization_name : currentUser.email.split('@')[0];
+      document.getElementById('user-info').textContent = `${userType} • ${displayName}`;
+    }
+
+    function showLogin() {
+      document.getElementById('login-page').classList.remove('hidden');
+      document.getElementById('register-page').classList.add('hidden');
+    }
+
+    function showRegister() {
+      document.getElementById('register-page').classList.remove('hidden');
+      document.getElementById('login-page').classList.add('hidden');
+    }
+
+    function logout() {
+      localStorage.removeItem('currentUser');
+      currentUser = null;
+      allDonations = [];
+      allUsers = [];
+      allNotifications = [];
+      document.getElementById('login-form').reset();
+      document.getElementById('register-form').reset();
+      showAuthView();
+      showLogin();
+    }
+
+    // Register form handling
+    document.getElementById('register-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const type = document.getElementById('register-type').value;
+      const email = document.getElementById('register-email').value;
+      const password = document.getElementById('register-password').value;
+      const confirmPassword = document.getElementById('register-confirm').value;
+      const phone = document.getElementById('register-phone').value;
+      const orgName = document.getElementById('register-org').value;
+      const errorEl = document.getElementById('register-error');
+
+      // Validation
+      if (password !== confirmPassword) {
+        errorEl.textContent = 'Passwords do not match!';
+        errorEl.classList.remove('hidden');
+        return;
+      }
+
+      if (password.length < 6) {
+        errorEl.textContent = 'Password must be at least 6 characters!';
+        errorEl.classList.remove('hidden');
+        return;
+      }
+
+      if (type === 'ngo' && !orgName) {
+        errorEl.textContent = 'Organization name is required for NGOs!';
+        errorEl.classList.remove('hidden');
+        return;
+      }
+
+      // Check if email already exists
+      const emailExists = allUsers.some(u => u.email === email);
+      if (emailExists) {
+        errorEl.textContent = 'Email already registered!';
+        errorEl.classList.remove('hidden');
+        return;
+      }
+
+      const newUser = {
+        id: Date.now().toString(),
+        email,
+        password, // Note: In production, passwords should be hashed
+        user_type: type,
+        organization_name: type === 'ngo' ? orgName : '',
+        phone,
+        created_at: new Date().toISOString()
+      };
+
+      if (window.dataSdk) {
+        const result = await window.dataSdk.create(newUser);
+        if (result.isOk) {
+          currentUser = newUser;
+          localStorage.setItem('currentUser', JSON.stringify(currentUser));
+          showMainApp();
+          document.getElementById('register-form').reset();
+        } else {
+          errorEl.textContent = 'Failed to create account. Please try again.';
+          errorEl.classList.remove('hidden');
+        }
+      }
+    });
+
+    // Login form handling
+    document.getElementById('login-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+      const errorEl = document.getElementById('login-error');
+
+      // Find user
+      const user = allUsers.find(u => u.email === email && u.password === password);
+      
+      if (user) {
+        currentUser = user;
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        showMainApp();
+        document.getElementById('login-form').reset();
+        errorEl.classList.add('hidden');
+      } else {
+        errorEl.textContent = 'Invalid email or password!';
+        errorEl.classList.remove('hidden');
+      }
+    });
+
+    // Show org name field for NGO
+    document.getElementById('register-type').addEventListener('change', (e) => {
+      const orgField = document.getElementById('org-name-field');
+      if (e.target.value === 'ngo') {
+        orgField.classList.remove('hidden');
+        document.getElementById('register-org').required = true;
+      } else {
+        orgField.classList.add('hidden');
+        document.getElementById('register-org').required = false;
+      }
+    });
+
+    // Element SDK initialization
+    const elementConfig = {
+      defaultConfig,
+      onConfigChange: async (config) => {
+        const c = { ...defaultConfig, ...config };
+        
+        // Update text content
+        document.getElementById('header-title').textContent = c.app_title;
+        document.getElementById('header-tagline').textContent = c.tagline;
+        document.getElementById('nav-donor').textContent = c.donate_button_text;
+        document.getElementById('nav-ngo').textContent = c.ngo_button_text;
+        
+        // Update colors
+        document.body.style.backgroundColor = c.background_color;
+        document.querySelector('header').style.backgroundColor = c.header_color;
+        document.getElementById('header-tagline').style.color = c.accent_color;
+        
+        // Update fonts
+        document.body.style.fontFamily = `${c.font_family}, sans-serif`;
+        
+        // Update font sizes proportionally
+        document.getElementById('header-title').style.fontSize = `${c.font_size * 1.25}px`;
+        document.querySelectorAll('h2').forEach(h => h.style.fontSize = `${c.font_size * 1.25}px`);
+        document.querySelectorAll('p, span, label, input, select, button').forEach(el => {
+          if (!el.classList.contains('text-2xl') && !el.classList.contains('text-xl')) {
+            el.style.fontSize = `${c.font_size}px`;
+          }
+        });
+      },
+      mapToCapabilities: (config) => {
+        const c = { ...defaultConfig, ...config };
+        return {
+          recolorables: [
+            { get: () => c.background_color, set: (v) => window.elementSdk.setConfig({ background_color: v }) },
+            { get: () => c.card_color, set: (v) => window.elementSdk.setConfig({ card_color: v }) },
+            { get: () => c.text_color, set: (v) => window.elementSdk.setConfig({ text_color: v }) },
+            { get: () => c.header_color, set: (v) => window.elementSdk.setConfig({ header_color: v }) },
+            { get: () => c.accent_color, set: (v) => window.elementSdk.setConfig({ accent_color: v }) }
+          ],
+          borderables: [],
+          fontEditable: {
+            get: () => c.font_family,
+            set: (v) => window.elementSdk.setConfig({ font_family: v })
+          },
+          fontSizeable: {
+            get: () => c.font_size,
+            set: (v) => window.elementSdk.setConfig({ font_size: v })
+          }
+        };
+      },
+      mapToEditPanelValues: (config) => {
+        const c = { ...defaultConfig, ...config };
+        return new Map([
+          ['app_title', c.app_title],
+          ['tagline', c.tagline],
+          ['donate_button_text', c.donate_button_text],
+          ['ngo_button_text', c.ngo_button_text]
+        ]);
+      }
+    };
+
+    if (window.elementSdk) {
+      window.elementSdk.init(elementConfig);
+    }
+
+    // Data SDK handler - updated to handle both users and donations
+    const dataHandler = {
+      onDataChanged(data) {
+        // Separate users from donations
+        allUsers = data.filter(d => d.user_type);
+        allDonations = data.filter(d => d.food_name);
+        recordCount = data.length;
+        updateStats();
+        renderDonationsList();
+        renderNGOView();
+        checkForNotifications();
+      }
+    };
+
+    // Initialize Data SDK
+    async function initDataSdk() {
+      if (window.dataSdk) {
+        const result = await window.dataSdk.init(dataHandler);
+        if (!result.isOk) {
+          console.error('Failed to initialize Data SDK');
+        }
+      }
+    }
+    
+    // Load app
+    window.addEventListener('DOMContentLoaded', () => {
+      initDataSdk();
+      checkAuth();
+    });
+
+    // View switching
+    function showView(view) {
+      currentView = view;
+      document.getElementById('donor-view').classList.toggle('hidden', view !== 'donor');
+      document.getElementById('ngo-view').classList.toggle('hidden', view !== 'ngo');
+      
+      document.getElementById('nav-donor').classList.toggle('bg-[#4ADE80]', view === 'donor');
+      document.getElementById('nav-donor').classList.toggle('text-[#1B4D3E]', view === 'donor');
+      document.getElementById('nav-donor').classList.toggle('bg-white/10', view !== 'donor');
+      document.getElementById('nav-donor').classList.toggle('text-white', view !== 'donor');
+      
+      document.getElementById('nav-ngo').classList.toggle('bg-[#4ADE80]', view === 'ngo');
+      document.getElementById('nav-ngo').classList.toggle('text-[#1B4D3E]', view === 'ngo');
+      document.getElementById('nav-ngo').classList.toggle('bg-white/10', view !== 'ngo');
+      document.getElementById('nav-ngo').classList.toggle('text-white', view !== 'ngo');
+    }
+
+    // Update stats
+    function updateStats() {
+      const pending = allDonations.filter(d => d.status === 'pending').length;
+      const accepted = allDonations.filter(d => d.status === 'accepted').length;
+      const delivered = allDonations.filter(d => d.status === 'delivered').length;
+      
+      document.getElementById('stat-pending').textContent = pending;
+      document.getElementById('stat-accepted').textContent = accepted;
+      document.getElementById('stat-delivered').textContent = delivered;
+    }
+
+    // Render donations list for donor view
+    function renderDonationsList() {
+      const container = document.getElementById('donations-list');
+      
+      if (allDonations.length === 0) {
+        container.innerHTML = '<p class="text-[#6B7280] text-center py-8">No donations yet. Add surplus food above to get started!</p>';
+        return;
+      }
+
+      container.innerHTML = allDonations.map(d => `
+        <div class="border border-[#E5E7EB] rounded-xl p-4 card-hover fade-in" data-id="${d.__backendId}">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 bg-[#F0F7F4] rounded-lg flex items-center justify-center text-2xl">
+                ${getCategoryEmoji(d.category)}
+              </div>
+              <div>
+                <h3 class="font-semibold text-[#1B4D3E]">${escapeHtml(d.food_name)}</h3>
+                <p class="text-sm text-[#6B7280]">${escapeHtml(d.quantity)} • ${escapeHtml(d.category)}</p>
+                <p class="text-xs text-[#9CA3AF]">📍 ${escapeHtml(d.pickup_location)}</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <span class="inline-block px-3 py-1 rounded-full text-xs font-medium ${getStatusClass(d.status)}">
+                ${d.status.charAt(0).toUpperCase() + d.status.slice(1)}
+              </span>
+              ${d.assigned_ngo ? `<p class="text-xs text-[#6B7280] mt-1">🏢 ${escapeHtml(d.assigned_ngo)}</p>` : ''}
+              <p class="text-xs text-[#9CA3AF] mt-1">Best before: ${d.expiry_date}</p>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Render NGO view
+    function renderNGOView() {
+      const availableContainer = document.getElementById('available-food');
+      const acceptedContainer = document.getElementById('accepted-food');
+      
+      const pendingDonations = allDonations.filter(d => d.status === 'pending');
+      const acceptedDonations = allDonations.filter(d => d.status === 'accepted' || d.status === 'delivered');
+
+      // Render available donations
+      if (pendingDonations.length === 0) {
+        availableContainer.innerHTML = '<p class="text-[#6B7280] text-center py-8">No pending donations available at the moment.</p>';
+      } else {
+        availableContainer.innerHTML = pendingDonations.map(d => `
+          <div class="border border-[#E5E7EB] rounded-xl p-4 card-hover fade-in bg-[#FFFBEB]" data-id="${d.__backendId}">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-white rounded-lg flex items-center justify-center text-2xl">
+                  ${getCategoryEmoji(d.category)}
+                </div>
+                <div>
+                  <h3 class="font-semibold text-[#1B4D3E]">${escapeHtml(d.food_name)}</h3>
+                  <p class="text-sm text-[#6B7280]">${escapeHtml(d.quantity)} • ${escapeHtml(d.category)}</p>
+                  <p class="text-xs text-[#9CA3AF]">📍 ${escapeHtml(d.pickup_location)} • 👤 ${escapeHtml(d.donor_name)}</p>
+                  <p class="text-xs text-[#DC2626]">⏰ Best before: ${d.expiry_date}</p>
+                </div>
+              </div>
+              <button onclick="acceptDonation('${d.__backendId}')" class="px-4 py-2 bg-[#4ADE80] text-[#1B4D3E] rounded-lg font-medium hover:bg-[#22C55E] transition flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                Accept
+              </button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // Render accepted donations
+      if (acceptedDonations.length === 0) {
+        acceptedContainer.innerHTML = '<p class="text-[#6B7280] text-center py-8">No accepted donations yet.</p>';
+      } else {
+        acceptedContainer.innerHTML = acceptedDonations.map(d => `
+          <div class="border border-[#E5E7EB] rounded-xl p-4 card-hover fade-in ${d.status === 'delivered' ? 'bg-[#EFF6FF]' : 'bg-[#ECFDF5]'}" data-id="${d.__backendId}">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-white rounded-lg flex items-center justify-center text-2xl">
+                  ${getCategoryEmoji(d.category)}
+                </div>
+                <div>
+                  <h3 class="font-semibold text-[#1B4D3E]">${escapeHtml(d.food_name)}</h3>
+                  <p class="text-sm text-[#6B7280]">${escapeHtml(d.quantity)} • ${escapeHtml(d.category)}</p>
+                  <p class="text-xs text-[#9CA3AF]">📍 ${escapeHtml(d.pickup_location)} • 👤 ${escapeHtml(d.donor_name)}</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="inline-block px-3 py-1 rounded-full text-xs font-medium ${getStatusClass(d.status)}">
+                  ${d.status === 'delivered' ? '🚚 Delivered' : '✅ Accepted'}
+                </span>
+                ${d.status === 'accepted' ? `
+                  <button onclick="markDelivered('${d.__backendId}')" class="px-4 py-2 bg-[#3B82F6] text-white rounded-lg font-medium hover:bg-[#2563EB] transition flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+                    </svg>
+                    Mark Delivered
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    // Helper functions
+    function getCategoryEmoji(category) {
+      const emojis = {
+        'Fruits & Vegetables': '🥕',
+        'Dairy Products': '🥛',
+        'Bakery Items': '🍞',
+        'Cooked Meals': '🍲',
+        'Packaged Foods': '📦',
+        'Beverages': '🥤'
+      };
+      return emojis[category] || '🍽️';
+    }
+
+    function getStatusClass(status) {
+      const classes = {
+        'pending': 'status-pending',
+        'accepted': 'status-accepted',
+        'delivered': 'status-delivered'
+      };
+      return classes[status] || 'status-pending';
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function showMessage(message, isError = false) {
+      const msgEl = document.getElementById('form-message');
+      msgEl.textContent = message;
+      msgEl.className = `mt-3 text-center text-sm ${isError ? 'text-red-600' : 'text-green-600'}`;
+      msgEl.classList.remove('hidden');
+      setTimeout(() => msgEl.classList.add('hidden'), 3000);
+    }
+
+    // Notification functions
+    function toggleNotifications() {
+      const panel = document.getElementById('notifications-panel');
+      panel.classList.toggle('hidden');
+    }
+
+    function addNotification(type, message, data = {}) {
+      const notification = {
+        id: Date.now().toString(),
+        type,
+        message,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        data,
+        read: false
+      };
+      
+      allNotifications.unshift(notification);
+      updateNotificationsDisplay();
+      
+      // Auto-remove after 5 seconds if it's a temporary notification
+      if (type === 'success' || type === 'info') {
+        setTimeout(() => {
+          allNotifications = allNotifications.filter(n => n.id !== notification.id);
+          updateNotificationsDisplay();
+        }, 5000);
+      }
+    }
+
+    function updateNotificationsDisplay() {
+      const container = document.getElementById('notifications-list');
+      const countEl = document.getElementById('notification-count');
+      const unreadCount = allNotifications.filter(n => !n.read).length;
+      
+      if (allNotifications.length === 0) {
+        container.innerHTML = '<p class="p-4 text-center text-[#9CA3AF] text-sm">No notifications yet</p>';
+        countEl.classList.add('hidden');
+      } else {
+        if (unreadCount > 0) {
+          countEl.textContent = unreadCount;
+          countEl.classList.remove('hidden');
+        } else {
+          countEl.classList.add('hidden');
+        }
+
+        container.innerHTML = allNotifications.map(n => `
+          <div class="p-3 hover:bg-[#F9FAFB] cursor-pointer transition notification-enter" onclick="markAsRead('${n.id}')">
+            <div class="flex items-start gap-3">
+              <div class="flex-shrink-0 mt-1">
+                ${getNotificationIcon(n.type)}
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-[#1B4D3E]">${n.message}</p>
+                <p class="text-xs text-[#9CA3AF] mt-1">${n.timestamp}</p>
+              </div>
+              ${!n.read ? '<div class="w-2 h-2 bg-[#4ADE80] rounded-full flex-shrink-0"></div>' : ''}
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    function getNotificationIcon(type) {
+      const icons = {
+        'success': '<svg class="w-5 h-5 text-[#4ADE80]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>',
+        'warning': '<svg class="w-5 h-5 text-[#F59E0B]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4v2m0 4v2M7.457 7.457a2.001 2.001 0 012.828 0M19.545 19.545a2.001 2.001 0 012.828 0M9 11a2 2 0 11-4 0 2 2 0 014 0m12 0a2 2 0 11-4 0 2 2 0 014 0"/></svg>',
+        'info': '<svg class="w-5 h-5 text-[#3B82F6]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
+        'action': '<svg class="w-5 h-5 text-[#EC4899]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/></svg>'
+      };
+      return icons[type] || icons['info'];
+    }
+
+    function markAsRead(notificationId) {
+      const notification = allNotifications.find(n => n.id === notificationId);
+      if (notification) {
+        notification.read = true;
+        updateNotificationsDisplay();
+      }
+    }
+
+    function checkForNotifications() {
+      if (!currentUser) return;
+
+      // Check for new donations (for NGOs)
+      if (currentUser.user_type === 'ngo') {
+        const pendingDonations = allDonations.filter(d => d.status === 'pending');
+        if (pendingDonations.length > 0) {
+          const hasNotification = allNotifications.some(n => n.type === 'action' && n.message.includes('new'));
+          if (!hasNotification && pendingDonations.length > 0) {
+            addNotification('action', `🆕 ${pendingDonations.length} new food donation${pendingDonations.length > 1 ? 's' : ''} available!`, { count: pendingDonations.length });
+          }
+        }
+      }
+
+      // Check for accepted donations (for donors)
+      if (currentUser.user_type === 'donor') {
+        const acceptedByDonor = allDonations.filter(d => d.status === 'accepted' && d.donor_name);
+        if (acceptedByDonor.length > 0) {
+          const hasNotification = allNotifications.some(n => n.message.includes('accepted'));
+          if (!hasNotification && acceptedByDonor.length > 0) {
+            addNotification('success', `✅ ${acceptedByDonor[0].food_name} has been accepted by an NGO!`);
+          }
+        }
+      }
+    }
+
+    // Form submission
+    document.getElementById('food-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      // Check limit
+      if (recordCount >= 999) {
+        document.getElementById('limit-warning').classList.remove('hidden');
+        return;
+      }
+
+      const submitBtn = document.getElementById('submit-btn');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="pulse">Adding...</span>';
+
+      const foodName = document.getElementById('food-name').value;
+      const donation = {
+        id: Date.now().toString(),
+        food_name: foodName,
+        quantity: document.getElementById('food-quantity').value,
+        category: document.getElementById('food-category').value,
+        expiry_date: document.getElementById('food-expiry').value,
+        pickup_location: document.getElementById('food-location').value,
+        donor_name: document.getElementById('donor-name').value,
+        status: 'pending',
+        assigned_ngo: '',
+        created_at: new Date().toISOString()
+      };
+
+      if (window.dataSdk) {
+        const result = await window.dataSdk.create(donation);
+        if (result.isOk) {
+          showMessage('✅ Food donation added successfully! NGOs will be notified.');
+          addNotification('success', `🍎 You listed ${foodName}!`);
+          e.target.reset();
+        } else {
+          showMessage('Failed to add donation. Please try again.', true);
+          addNotification('warning', 'Failed to add donation');
+        }
+      }
+
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = `
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Add to Available List
+      `;
+    });
+
+    // Accept donation
+    async function acceptDonation(backendId) {
+      const donation = allDonations.find(d => d.__backendId === backendId);
+      if (!donation || !window.dataSdk) return;
+
+      const btn = event.target.closest('button');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="pulse">Accepting...</span>';
+
+      const updated = { ...donation, status: 'accepted', assigned_ngo: 'Food Hope Foundation' };
+      const result = await window.dataSdk.update(updated);
+      
+      if (!result.isOk) {
+        showMessage('Failed to accept donation. Please try again.', true);
+        addNotification('warning', 'Failed to accept donation');
+      } else {
+        addNotification('success', `✅ You accepted ${donation.food_name}!`);
+      }
+
+      btn.disabled = false;
+    }
+
+    // Mark as delivered
+    async function markDelivered(backendId) {
+      const donation = allDonations.find(d => d.__backendId === backendId);
+      if (!donation || !window.dataSdk) return;
+
+      const btn = event.target.closest('button');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="pulse">Updating...</span>';
+
+      const updated = { ...donation, status: 'delivered' };
+      const result = await window.dataSdk.update(updated);
+      
+      if (!result.isOk) {
+        showMessage('Failed to update status. Please try again.', true);
+        addNotification('warning', 'Failed to update status');
+      } else {
+        addNotification('success', `🚚 ${donation.food_name} marked as delivered!`);
+      }
+
+      btn.disabled = false;
+    }
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9e86b1d1b7f17ee5',t:'MTc3NTU0MDM5Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
